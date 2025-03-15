@@ -1,8 +1,9 @@
 const app = require('./src/app');  
+const dontenv = require('dotenv');
+const PORT = process.env.PORT || 5000;
 
-const PORT = process.env.PORT || 5000;  // Définir le port, ou utiliser celui défini dans .env
+dontenv.config();
 
-// Démarrer le serveur
 app.listen(PORT, () => {
   console.log(`Serveur démarré sur le port ${PORT}`);
 });
