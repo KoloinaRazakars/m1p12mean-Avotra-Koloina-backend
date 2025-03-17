@@ -11,6 +11,7 @@ const utilisateurRoutes = require('./routes/utilisateurRoutes');
 const mecanicienRoutes = require('./routes/mecanicienRoutes');
 const managerRoutes = require('./routes/managerRoutes');
 const clientRoutes = require('./routes/clientRoutes');
+const missionRoutes = require('./routes/missionRoutes');
 
 app.use(cors());
 app.use(express.json());
@@ -27,6 +28,7 @@ app.use('/utilisateurs', utilisateurRoutes);
 app.use('/mecaniciens', mecanicienRoutes);
 app.use('/manager', managerRoutes);
 app.use('/clients', clientRoutes);
+app.use('/missions', missionRoutes );
 
 // Exporter l'application
 module.exports = app;
