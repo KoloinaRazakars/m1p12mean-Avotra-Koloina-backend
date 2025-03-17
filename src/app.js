@@ -9,6 +9,8 @@ dotenv.config();
 const authRoutes = require('./routes/authRoutes');
 const utilisateurRoutes = require('./routes/utilisateurRoutes');
 const mecanicienRoutes = require('./routes/mecanicienRoutes');
+const managerRoutes = require('./routes/managerRoutes');
+const clientRoutes = require('./routes/clientRoutes');
 
 app.use(cors());
 app.use(express.json());
@@ -23,6 +25,8 @@ mongoose.connect(process.env.MONGO_URI)
 app.use('/auth', authRoutes);
 app.use('/utilisateurs', utilisateurRoutes);
 app.use('/mecaniciens', mecanicienRoutes);
+app.use('/manager', managerRoutes);
+app.use('/clients', clientRoutes);
 
 // Exporter l'application
 module.exports = app;
