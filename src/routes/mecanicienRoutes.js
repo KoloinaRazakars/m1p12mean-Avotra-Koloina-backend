@@ -4,7 +4,8 @@ const mecanicienController = require('../controllers/mecanicienController');
 const { validationMecanicien } = require('../middleware/validationInscriptionUtilisateur');
 const { validationResult } = require('express-validator');
 
-router.get('/', mecanicienController.getAllMecaniciens);
+router.get('/', mecanicienController.getAllMecaniciensActif);
+router.get('/nonactifs', mecanicienController.getAllMecanicienNonActif);
 router.post('/', validationMecanicien, (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -15,5 +16,6 @@ router.post('/', validationMecanicien, (req, res, next) => {
 router.get('/:id', mecanicienController.getMecanicienById);
 router.put('/:id', mecanicienController.updateMecanicien);
 router.delete('/:id', mecanicienController.deleteMecanicien);
+router.put('/nonactifs/reactiver/:id', mecanicienController.reactivateMecanicien);
 
 module.exports = router;

@@ -5,7 +5,8 @@ const utilisateurSchema = new mongoose.Schema(
   {
     nomUtilisateur: { type: String, required: true, unique: true },
     motdepasse: { type: String, required: true },
-    role: { type: String, enum: ['manager', 'mecanicien', 'client'], required: true }
+    role: { type: String, enum: ['manager', 'mecanicien', 'client'], required: true },
+    actif: { type: Boolean, default: true }
   },
   { timestamps: true }
 );

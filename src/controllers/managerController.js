@@ -3,12 +3,31 @@ const Utilisateur = require('../models/Utilisateur');
 const bcrypt = require('bcryptjs');
 
 
-exports.getAllManager = async (req, res) => {
+exports.getAllManagerActif = async (req, res) => {
     try {
         const manager = await Manager.find().populate({
             path: "utilisateurId",
+            match: { actif: true }
         });
-        res.status(200).json(manager);
+
+        const managerActifs = manager.filter(m => m.utilisateurId);
+
+        res.status(200).json(managerActifs);
+      } catch (error) {
+        res.status(500).json({ message: 'Erreur serveur', error });
+    }
+};
+
+exports.getAllManagerNonActif = async (req, res) => {
+    try {
+        const manager = await Manager.find().populate({
+            path: "utilisateurId",
+            match: { actif: false }
+        });
+
+        const managerNonActifs = manager.filter(m => m.utilisateurId !== null);
+
+        res.status(200).json(managerNonActifs);
       } catch (error) {
         res.status(500).json({ message: 'Erreur serveur', error });
     }
@@ -62,6 +81,7 @@ exports.getManagerById = async (req, res) =>
         res.status(500).json({ message: 'Erreur serveur', error });
       }
 };
+
 exports.updateManager = async (req, res) => {
     const { id } = req.params; 
     const { nomUtilisateur, motdepasse, nom, prenom } = req.body;
@@ -101,4 +121,51 @@ exports.updateManager = async (req, res) => {
         res.status(500).json({ message: "Erreur lors de la mise à jour", error: err });
     }
 };
-exports.deleteManager = async (req, res) => {};
+
+exports.deleteManager = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const manager = await Manager.findById(id);
+        if (!manager) {
+            return res.status(404).json({ message: "Manager introuvable" });
+        }
+
+        const utilisateur = await Utilisateur.findById(manager.utilisateurId);
+        if (!utilisateur) {
+            return res.status(404).json({ message: "Utilisateur associé introuvable" });
+        }
+
+        // Désactiver l'utilisateur au lieu de le supprimer
+        utilisateur.actif = false;
+        await utilisateur.save();
+
+        res.status(200).json({ message: "Utilisateur désactivé avec succès", manager, utilisateur });
+    } catch (error) {
+        res.status(500).json({ message: "Erreur lors de la désactivation", error });
+    }
+};
+
+exports.reactivateManager = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const manager = await Manager.findById(id);
+        if (!manager) {
+            return res.status(404).json({ message: "Manager introuvable" });
+        }
+
+        const utilisateur = await Utilisateur.findById(manager.utilisateurId);
+        if (!utilisateur) {
+            return res.status(404).json({ message: "Utilisateur introuvable" });
+        }
+
+        utilisateur.actif = true;
+        await utilisateur.save();
+
+        res.status(200).json({ message: "Utilisateur réactivé avec succès", manager, utilisateur });
+    } catch (error) {
+        res.status(500).json({ message: "Erreur lors de la réactivation", error });
+    }
+};
+

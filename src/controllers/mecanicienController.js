@@ -3,12 +3,31 @@ const Utilisateur = require('../models/Utilisateur');
 const bcrypt = require('bcryptjs');
 
 
-exports.getAllMecaniciens = async (req, res) => {
+exports.getAllMecaniciensActif = async (req, res) => {
     try {
-        const mecaniciens = await Mecanicien.find().populate({
+        const mecanicien = await Mecanicien.find().populate({
             path: "utilisateurId",
+            match: { actif: true }
         });
-        res.status(200).json(mecaniciens);
+
+        const mecanicienActif = mecanicien.filter(m => m.utilisateurId);
+
+        res.status(200).json(mecanicienActif);
+      } catch (error) {
+        res.status(500).json({ message: 'Erreur serveur', error });
+    }
+};
+
+exports.getAllMecanicienNonActif = async (req, res) => {
+    try {
+        const mecanicien = await Mecanicien.find().populate({
+            path: "utilisateurId",
+            match: { actif: false }
+        });
+
+        const mecanicienNonActif = mecanicien.filter(m => m.utilisateurId !== null);
+
+        res.status(200).json(mecanicienNonActif);
       } catch (error) {
         res.status(500).json({ message: 'Erreur serveur', error });
     }
@@ -62,6 +81,7 @@ exports.getMecanicienById = async (req, res) =>
         res.status(500).json({ message: 'Erreur serveur', error });
       }
 };
+
 exports.updateMecanicien = async (req, res) => {
     const { id } = req.params; 
     const { nomUtilisateur, motdepasse, nom, prenom } = req.body;
@@ -101,4 +121,51 @@ exports.updateMecanicien = async (req, res) => {
         res.status(500).json({ message: "Erreur lors de la mise à jour", error: err });
     }
 };
-exports.deleteMecanicien = async (req, res) => {};
+
+exports.deleteMecanicien = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const mecanicien = await Mecanicien.findById(id);
+        if (!mecanicien) {
+            return res.status(404).json({ message: "Mecanicien introuvable" });
+        }
+
+        const utilisateur = await Utilisateur.findById(mecanicien.utilisateurId);
+        if (!utilisateur) {
+            return res.status(404).json({ message: "Utilisateur associé introuvable" });
+        }
+
+        // Désactiver l'utilisateur au lieu de le supprimer
+        utilisateur.actif = false;
+        await utilisateur.save();
+
+        res.status(200).json({ message: "Utilisateur désactivé avec succès", mecanicien, utilisateur });
+    } catch (error) {
+        res.status(500).json({ message: "Erreur lors de la désactivation", error });
+    }
+};
+
+exports.reactivateMecanicien = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const mecanicien = await Mecanicien.findById(id);
+        if (!mecanicien) {
+            return res.status(404).json({ message: "Mecanicien introuvable" });
+        }
+
+        const utilisateur = await Utilisateur.findById(mecanicien.utilisateurId);
+        if (!utilisateur) {
+            return res.status(404).json({ message: "Utilisateur introuvable" });
+        }
+
+        utilisateur.actif = true;
+        await utilisateur.save();
+
+        res.status(200).json({ message: "Utilisateur réactivé avec succès", mecanicien, utilisateur });
+    } catch (error) {
+        res.status(500).json({ message: "Erreur lors de la réactivation", error });
+    }
+};
+
