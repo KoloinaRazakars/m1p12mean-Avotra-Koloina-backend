@@ -10,5 +10,31 @@ const utilisateurSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+utilisateurSchema.virtual('clientData', {
+  ref: 'Client', 
+  localField: '_id',
+  foreignField: 'utilisateurId',
+  justOne: true,
+});
+
+utilisateurSchema.virtual('managerData', {
+  ref: 'Manager', 
+  localField: '_id',
+  foreignField: 'utilisateurId',
+  justOne: true,
+});
+
+
+utilisateurSchema.virtual('mecanicienData', {
+  ref: 'Mecanicien', 
+  localField: '_id',
+  foreignField: 'utilisateurId',
+  justOne: true,
+});
+
+
+utilisateurSchema.set('toObject', { virtuals: true });
+utilisateurSchema.set('toJSON', { virtuals: true });
+
 const Utilisateur = mongoose.model('Utilisateur', utilisateurSchema);
 module.exports = Utilisateur;

@@ -7,6 +7,9 @@ const app = express();
 dotenv.config(); 
 
 const authRoutes = require('./routes/authRoutes');
+const utilisateurRoutes = require('./routes/utilisateurRoutes');
+const mecanicienRoutes = require('./routes/mecanicienRoutes');
+
 app.use(cors());
 app.use(express.json());
 
@@ -17,7 +20,9 @@ mongoose.connect(process.env.MONGO_URI)
   .catch(err => console.error('Erreur de connexion MongoDB:', err));
 
 // Routes
-app.use('/api/auth', authRoutes);
+app.use('/auth', authRoutes);
+app.use('/utilisateurs', utilisateurRoutes);
+app.use('/mecaniciens', mecanicienRoutes);
 
 // Exporter l'application
 module.exports = app;
