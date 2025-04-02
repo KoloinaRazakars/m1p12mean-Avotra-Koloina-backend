@@ -168,4 +168,3 @@ exports.reactivateManager = async (req, res) => {
         res.status(500).json({ message: "Erreur lors de la réactivation", error });
     }
 };
-

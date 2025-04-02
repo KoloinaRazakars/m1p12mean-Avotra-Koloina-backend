@@ -169,3 +169,64 @@ exports.reactivateMecanicien = async (req, res) => {
     }
 };
 
+//Gestion utilisateur côté utilisateur connecté
+exports.getMecanicienSelf = async (req, res) => {
+    try {
+        const userId = req.user.id; 
+
+        const utilisateur = await Utilisateur.findById(userId);
+
+        if (!utilisateur) {
+            return res.status(404).json({ message: "Utilisateur introuvable" });
+        }
+
+        const mecanicien = await Mecanicien.findOne({ utilisateurId: utilisateur._id });
+        if (!mecanicien) {
+            return res.status(404).json({ message: "Mecanicien associé introuvable" });
+        }
+
+        res.status(200).json(mecanicien);
+
+    } catch (err) {
+        res.status(500).json({ message: "Erreur serveur", error: err });
+    }
+};
+
+exports.updateMecanicienSelf = async (req, res) => {
+    const { nomUtilisateur, motdepasse, nom, prenom } = req.body;
+
+    try {
+        const userId = req.user.id; 
+
+        
+        const utilisateur = await Utilisateur.findById(userId);
+        if (!utilisateur) {
+            return res.status(404).json({ message: "Utilisateur introuvable" });
+        }
+
+        const mecanicien = await Mecanicien.findOne({ utilisateurId: utilisateur._id });
+        if (!mecanicien) {
+            return res.status(404).json({ message: "Mecanicien associé introuvable" });
+        }
+
+        utilisateur.nomUtilisateur = nomUtilisateur || utilisateur.nomUtilisateur;
+        if (motdepasse) {
+            const salt = await bcrypt.genSalt(10);
+            utilisateur.motdepasse = await bcrypt.hash(motdepasse, salt);
+        }
+
+        mecanicien.nom = nom || mecanicien.nom;
+        mecanicien.prenom = prenom || mecanicien.prenom;
+
+        await utilisateur.save();
+        await mecanicien.save();
+
+        res.status(200).json({ message: "Mise à jour réussie", mecanicien, utilisateur });
+
+    } catch (err) {
+        res.status(500).json({ message: "Erreur lors de la mise à jour", error: err });
+    }
+};
+
+
+

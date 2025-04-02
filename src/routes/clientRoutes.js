@@ -18,4 +18,7 @@ router.put('/:id', clientController.updateClient);
 router.delete('/:id', clientController.deleteClient);
 router.put('/nonactifs/reactiver/:id', clientController.reactivateClient);
 
+router.get('/:userId', clientController.getClientSelf);
+router.put('/:userId', clientController.updateClientSelf);
+
 module.exports = router;

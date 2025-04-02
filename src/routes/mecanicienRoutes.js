@@ -18,4 +18,7 @@ router.put('/:id', mecanicienController.updateMecanicien);
 router.delete('/:id', mecanicienController.deleteMecanicien);
 router.put('/nonactifs/reactiver/:id', mecanicienController.reactivateMecanicien);
 
+router.get('/:userId', mecanicienController.getMecanicienSelf);
+router.put('/:userId', mecanicienController.updateMecanicienSelf);
+
 module.exports = router;

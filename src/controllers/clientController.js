@@ -63,6 +63,8 @@ exports.storeClient = async (req, res) => {
   }
 };
 
+
+// Gestion du côté manager
 exports.getClientById = async (req, res) => 
 {
     try {
@@ -168,3 +170,67 @@ exports.reactivateClient = async (req, res) => {
         res.status(500).json({ message: "Erreur lors de la réactivation", error });
     }
 };
+
+
+
+//Gestion utilisateur côté utilisateur connecté
+exports.getClientSelf = async (req, res) => {
+    try {
+        const userId = req.user.id; 
+
+        const utilisateur = await Utilisateur.findById(userId);
+
+        if (!utilisateur) {
+            return res.status(404).json({ message: "Utilisateur introuvable" });
+        }
+
+        const client = await Client.findOne({ utilisateurId: utilisateur._id });
+        if (!client) {
+            return res.status(404).json({ message: "Client associé introuvable" });
+        }
+
+        res.status(200).json(client);
+
+    } catch (err) {
+        res.status(500).json({ message: "Erreur serveur", error: err });
+    }
+};
+
+exports.updateClientSelf = async (req, res) => {
+    const { nomUtilisateur, motdepasse, nom, prenom } = req.body;
+
+    try {
+        const userId = req.user.id; 
+
+        
+        const utilisateur = await Utilisateur.findById(userId);
+        if (!utilisateur) {
+            return res.status(404).json({ message: "Utilisateur introuvable" });
+        }
+
+        const client = await Client.findOne({ utilisateurId: utilisateur._id });
+        if (!client) {
+            return res.status(404).json({ message: "Client associé introuvable" });
+        }
+
+        utilisateur.nomUtilisateur = nomUtilisateur || utilisateur.nomUtilisateur;
+        if (motdepasse) {
+            const salt = await bcrypt.genSalt(10);
+            utilisateur.motdepasse = await bcrypt.hash(motdepasse, salt);
+        }
+
+        client.nom = nom || client.nom;
+        client.prenom = prenom || client.prenom;
+
+        await utilisateur.save();
+        await client.save();
+
+        res.status(200).json({ message: "Mise à jour réussie", client, utilisateur });
+
+    } catch (err) {
+        res.status(500).json({ message: "Erreur lors de la mise à jour", error: err });
+    }
+};
+
+
+
