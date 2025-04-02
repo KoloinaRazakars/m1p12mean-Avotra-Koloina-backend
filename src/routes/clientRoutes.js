@@ -3,6 +3,7 @@ const router = express.Router();
 const clientController = require('../controllers/clientController');
 const { validationClient } = require('../middleware/validationInscriptionUtilisateur');
 const { validationResult } = require('express-validator');
+const { authMiddleware } = require('../middleware/authMiddleware');
 
 router.get('/', clientController.getAllClientActif);
 router.get('/nonactifs', clientController.getAllClientNonActif);
@@ -18,7 +19,7 @@ router.put('/:id', clientController.updateClient);
 router.delete('/:id', clientController.deleteClient);
 router.put('/nonactifs/reactiver/:id', clientController.reactivateClient);
 
-router.get('/:userId', clientController.getClientSelf);
-router.put('/:userId', clientController.updateClientSelf);
+router.get('/self', authMiddleware, clientController.getClientSelf);
+router.put('/self', authMiddleware, clientController.updateClientSelf);
 
 module.exports = router;

@@ -1,6 +1,5 @@
 const isManager = (req, res, next) => {
   try {    
-    // Vérifier si l'utilisateur est un manager
     if (decoded.role !== 'manager') {
       return res.status(403).json({ message: 'Accès refusé. Vous devez être un manager.' });
     }

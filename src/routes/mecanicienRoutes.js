@@ -3,6 +3,7 @@ const router = express.Router();
 const mecanicienController = require('../controllers/mecanicienController');
 const { validationMecanicien } = require('../middleware/validationInscriptionUtilisateur');
 const { validationResult } = require('express-validator');
+const { authMiddleware } = require('../middleware/authMiddleware');
 
 router.get('/', mecanicienController.getAllMecaniciensActif);
 router.get('/nonactifs', mecanicienController.getAllMecanicienNonActif);
@@ -18,7 +19,7 @@ router.put('/:id', mecanicienController.updateMecanicien);
 router.delete('/:id', mecanicienController.deleteMecanicien);
 router.put('/nonactifs/reactiver/:id', mecanicienController.reactivateMecanicien);
 
-router.get('/:userId', mecanicienController.getMecanicienSelf);
-router.put('/:userId', mecanicienController.updateMecanicienSelf);
+router.get('/self', authMiddleware, mecanicienController.getMecanicienSelf);
+router.put('/self', authMiddleware, mecanicienController.updateMecanicienSelf);
 
 module.exports = router;
