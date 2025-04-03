@@ -172,9 +172,10 @@ exports.reactivateMecanicien = async (req, res) => {
 //Gestion utilisateur côté utilisateur connecté
 exports.getMecanicienSelf = async (req, res) => {
     try {
-        const userId = req.user.id; 
-
+        console.log("req.user:", req.user);
+        userId = req.user.id;
         const utilisateur = await Utilisateur.findById(userId);
+        console.log("Utilisateur trouvé:", utilisateur);
 
         if (!utilisateur) {
             return res.status(404).json({ message: "Utilisateur introuvable" });

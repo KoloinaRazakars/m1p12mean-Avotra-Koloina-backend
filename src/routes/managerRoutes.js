@@ -3,6 +3,7 @@ const router = express.Router();
 const managerController = require('../controllers/managerController');
 const { validationManager } = require('../middleware/validationInscriptionUtilisateur');
 const { validationResult } = require('express-validator');
+const authMiddleware = require('../middleware/authMiddleware');
 
 router.get('/', managerController.getAllManagerActif);
 router.get('/nonactifs', managerController.getAllManagerNonActif);
@@ -13,6 +14,11 @@ router.post('/', validationManager, (req, res, next) => {
     }
     next();
 }, managerController.storeManager);
+
+router.get('/self', authMiddleware, managerController.getManagerSelf);
+router.put('/self', authMiddleware, managerController.updateManagerSelf);
+
+
 router.get('/:id', managerController.getManagerById);
 router.put('/:id', managerController.updateManager);
 router.delete('/:id', managerController.deleteManager);

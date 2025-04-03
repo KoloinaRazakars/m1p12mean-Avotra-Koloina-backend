@@ -168,3 +168,66 @@ exports.reactivateManager = async (req, res) => {
         res.status(500).json({ message: "Erreur lors de la réactivation", error });
     }
 };
+
+//Gestion utilisateur côté utilisateur connecté
+exports.getManagerSelf = async (req, res) => {
+    try {
+        console.log("req.user:", req.user);
+        userId = req.user.id;
+        const utilisateur = await Utilisateur.findById(userId);
+        console.log("Utilisateur trouvé:", utilisateur);
+
+        if (!utilisateur) {
+            return res.status(404).json({ message: "Utilisateur introuvable" });
+        }
+
+        const manager = await Manager.findOne({ utilisateurId: utilisateur._id });
+        if (!manager) {
+            return res.status(404).json({ message: "Manager associé introuvable" });
+        }
+
+        res.status(200).json(manager);
+
+    } catch (err) {
+        res.status(500).json({ message: "Erreur serveur", error: err });
+    }
+};
+
+exports.updateManagerSelf = async (req, res) => {
+    const { nomUtilisateur, motdepasse, nom, prenom } = req.body;
+
+    try {
+        const userId = req.user.id; 
+
+        
+        const utilisateur = await Utilisateur.findById(userId);
+        if (!utilisateur) {
+            return res.status(404).json({ message: "Utilisateur introuvable" });
+        }
+
+        const manager = await Manager.findOne({ utilisateurId: utilisateur._id });
+        if (!manager) {
+            return res.status(404).json({ message: "Manager associé introuvable" });
+        }
+
+        utilisateur.nomUtilisateur = nomUtilisateur || utilisateur.nomUtilisateur;
+        if (motdepasse) {
+            const salt = await bcrypt.genSalt(10);
+            utilisateur.motdepasse = await bcrypt.hash(motdepasse, salt);
+        }
+
+        manager.nom = nom || manager.nom;
+        manager.prenom = prenom || manager.prenom;
+
+        await utilisateur.save();
+        await manager.save();
+
+        res.status(200).json({ message: "Mise à jour réussie", manager, utilisateur });
+
+    } catch (err) {
+        res.status(500).json({ message: "Erreur lors de la mise à jour", error: err });
+    }
+};
+
+
+

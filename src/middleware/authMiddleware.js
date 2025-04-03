@@ -3,7 +3,8 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
-module.exports = (req, res, next) => {
+const authMiddleware = (req, res, next) => {
+  
   const token = req.header('Authorization');
 
   if (!token) {
@@ -12,9 +13,12 @@ module.exports = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token.replace('Bearer ', ''), process.env.JWT_SECRET);
-    req.utilisateur = decoded;
+    req.user = decoded;
+    
     next();
   } catch (err) {
     res.status(401).json({ message: 'Token invalide' });
   }
 };
+
+module.exports = authMiddleware;
