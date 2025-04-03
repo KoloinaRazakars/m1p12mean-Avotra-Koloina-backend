@@ -9,7 +9,7 @@ const isClient = require('../middleware/isClient');
 
 router.get('/', authMiddleware, isManager, clientController.getAllClientActif);
 router.get('/nonactifs', authMiddleware, isManager, clientController.getAllClientNonActif);
-router.post('/', authMiddleware, validationClient, (req, res, next) => {
+router.post('/', validationClient, (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });

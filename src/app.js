@@ -12,15 +12,14 @@ const mecanicienRoutes = require('./routes/mecanicienRoutes');
 const managerRoutes = require('./routes/managerRoutes');
 const clientRoutes = require('./routes/clientRoutes');
 const missionRoutes = require('./routes/missionRoutes');
+const connectDB = require('../database');
 
 app.use(cors());
 app.use(express.json());
 
 
 // Connexion à MongoDB
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log('MongoDB connecté'))
-  .catch(err => console.error('Erreur de connexion MongoDB:', err));
+connectDB();
 
 // Routes
 app.use('/auth', authRoutes);
