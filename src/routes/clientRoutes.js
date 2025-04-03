@@ -5,6 +5,7 @@ const { validationClient } = require('../middleware/validationInscriptionUtilisa
 const { validationResult } = require('express-validator');
 const authMiddleware  = require('../middleware/authMiddleware');
 const isManager = require('../middleware/isManager');
+const isClient = require('../middleware/isClient');
 
 router.get('/', authMiddleware, isManager, clientController.getAllClientActif);
 router.get('/nonactifs', authMiddleware, isManager, clientController.getAllClientNonActif);
@@ -16,8 +17,8 @@ router.post('/', authMiddleware, validationClient, (req, res, next) => {
     next();
 }, clientController.storeClient);
 
-router.get('/self', authMiddleware, clientController.getClientSelf);
-router.put('/self', authMiddleware, clientController.updateClientSelf);
+router.get('/self', authMiddleware, isClient, clientController.getClientSelf);
+router.put('/self', authMiddleware, isClient, clientController.updateClientSelf);
 
 router.get('/:id', authMiddleware, isManager, clientController.getClientById);
 router.put('/:id', authMiddleware, isManager, clientController.updateClient);

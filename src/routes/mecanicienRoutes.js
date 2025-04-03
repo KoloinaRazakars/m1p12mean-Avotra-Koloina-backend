@@ -5,6 +5,7 @@ const { validationMecanicien } = require('../middleware/validationInscriptionUti
 const { validationResult } = require('express-validator');
 const authMiddleware = require('../middleware/authMiddleware');
 const isManager = require('../middleware/isManager');
+const isMecanicien = require('../middleware/isMecanicien');
 
 
 
@@ -18,8 +19,8 @@ router.post('/', authMiddleware, isManager, validationMecanicien, (req, res, nex
     next();
 }, mecanicienController.storeMecanicien);
 
-router.get('/self', authMiddleware, mecanicienController.getMecanicienSelf);
-router.put('/self', authMiddleware, mecanicienController.updateMecanicienSelf);
+router.get('/self', authMiddleware, isMecanicien, mecanicienController.getMecanicienSelf);
+router.put('/self', authMiddleware, isMecanicien, mecanicienController.updateMecanicienSelf);
 
 
 router.get('/:id', authMiddleware, isManager, mecanicienController.getMecanicienById);

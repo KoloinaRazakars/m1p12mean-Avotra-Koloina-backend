@@ -4,7 +4,7 @@ const Mecanicien = require('../models/Mecanicien');
 const { default: mongoose } = require('mongoose');
 
 
-//Liswte des missions non assignées
+//Liste des missions non assignées
 exports.getAllMissionsNonAssignees = async (req, res) => {
     try {
         const missions = await Mission.find({ statut: 'non assignée' })
@@ -142,6 +142,93 @@ exports.getMissionsTermineesClient = async (req, res) => {
 };
 
 
+//Liste des missions pour un client connecté:
+
+//Liste des missions non assignées pour un client connecté
+exports.getMissionsNonAssigneesClientSelf = async (req, res) => {
+    const userId = req.user.id;
+
+    try {
+        // Vérifier si le client possède des véhicules
+        const clientObjectId = new mongoose.Types.ObjectId(userId);
+        const vehicules = await Vehicule.find({ clientId: clientObjectId });
+        if (vehicules.length === 0) {
+            return res.status(404).json({ message: "Aucun véhicule trouvé pour vous." });
+        }
+
+        // Extraire les IDs des véhicules du client
+        const vehiculeIds = vehicules.map(v => v._id);
+
+        const missions = await Mission.find({ 
+            vehiculeId: { $in: vehiculeIds }, 
+            statut: "non assignée" 
+        }).populate("vehiculeId mecanicienId");
+
+        res.status(200).json(missions);
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Erreur serveur", error });
+    }
+};
+
+//Liste des missions en cours de traitement pour un client connecté
+exports.getMissionsEnCoursClientSelf = async (req, res) => {
+    const userId = req.user.id;
+
+    try {
+        // Vérifier si le client possède des véhicules
+        const clientObjectId = new mongoose.Types.ObjectId(userId);
+        const vehicules = await Vehicule.find({ clientId: clientObjectId });
+        if (vehicules.length === 0) {
+            return res.status(404).json({ message: "Aucun véhicule trouvé pour ce client." });
+        }
+
+        // Extraire les IDs des véhicules du client
+        const vehiculeIds = vehicules.map(v => v._id);
+
+        const missions = await Mission.find({ 
+            vehiculeId: { $in: vehiculeIds }, 
+            statut: "en cours" 
+        }).populate("vehiculeId mecanicienId");
+
+        res.status(200).json(missions);
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Erreur serveur", error });
+    }
+};
+
+//Liste des missions terminées pour un client connecté
+exports.getMissionsTermineesClientSelf = async (req, res) => {
+    const userId = req.user.id;
+
+    try {
+        // Vérifier si le client possède des véhicules
+        const clientObjectId = new mongoose.Types.ObjectId(userId);
+        const vehicules = await Vehicule.find({ clientId: clientObjectId });
+        if (vehicules.length === 0) {
+            return res.status(404).json({ message: "Aucun véhicule trouvé pour ce client." });
+        }
+
+        // Extraire les IDs des véhicules du client
+        const vehiculeIds = vehicules.map(v => v._id);
+
+        const missions = await Mission.find({ 
+            vehiculeId: { $in: vehiculeIds }, 
+            statut: "terminée" 
+        }).populate("vehiculeId mecanicienId");
+
+        res.status(200).json(missions);
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Erreur serveur", error });
+    }
+};
+
+
 //Liste des missions en cours de traitement par un mecanicien
 exports.getMissionsEnCoursMecanicien = async (req, res) => {
     const { id } = req.params;
@@ -177,6 +264,65 @@ exports.getMissionsTermineesMecanicien = async (req, res) => {
     try {
         // Vérifier si le mécanicien existe
         const mecanicien = await Mecanicien.findById(id);
+        if (!mecanicien) {
+            return res.status(404).json({ message: "Mécanicien introuvable." });
+        }
+
+        // Chercher les missions qui lui sont assignées et qui sont en cours
+        const missions = await Mission.find({ 
+            mecanicienId: id, 
+            statut: "terminée" 
+        }).populate("vehiculeId");
+
+        if (missions.length === 0) {
+            return res.status(404).json({ message: "Aucune mission en cours trouvée pour ce mécanicien." });
+        }
+
+        res.status(200).json(missions);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Erreur serveur", error });
+    }
+};
+
+
+//Liste des missions d'un mecanicien connecté:
+
+//Liste des missions en cours de traitement par un mecanicien connecté
+exports.getMissionsEnCoursMecanicienSelf = async (req, res) => {
+    const userId = req.user.id;
+
+    try {
+        // Vérifier si le mécanicien existe
+        const mecanicien = await Mecanicien.findById(userId);
+        if (!mecanicien) {
+            return res.status(404).json({ message: "Mécanicien introuvable." });
+        }
+
+        // Chercher les missions qui lui sont assignées et qui sont en cours
+        const missions = await Mission.find({ 
+            mecanicienId: id, 
+            statut: "en cours" 
+        }).populate("vehiculeId");
+
+        if (missions.length === 0) {
+            return res.status(404).json({ message: "Aucune mission en cours trouvée pour ce mécanicien." });
+        }
+
+        res.status(200).json(missions);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Erreur serveur", error });
+    }
+};
+
+//Liste des missions terminées par un mecanicien connecté
+exports.getMissionsTermineesMecanicienSelf = async (req, res) => {
+    const userId = req.user.id;
+
+    try {
+        // Vérifier si le mécanicien existe
+        const mecanicien = await Mecanicien.findById(userId);
         if (!mecanicien) {
             return res.status(404).json({ message: "Mécanicien introuvable." });
         }
